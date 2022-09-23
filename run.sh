@@ -1,0 +1,1 @@
+python test.py --config=./configs/carla_bak.txt
