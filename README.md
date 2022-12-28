@@ -1,5 +1,5 @@
 # Remote Sensing Image Segmentation based on Implicit 3D Scene Representation
-![visitors](https://visitor-badge.glitch.me/badge?page_id=windvchen.drenet.visitor_reset)
+![visitors](https://visitor-badge.glitch.me/badge?page_id=qizipeng.NeRF-for-segmentation.visitor_reset)
 ![GitHub stars](https://badgen.net/github/stars/qizipeng/NeRF-for-segmentation)
 ## Share us a star if this repo does help
 A novel NeRF++ based method for remote sensing scene segmetation!
