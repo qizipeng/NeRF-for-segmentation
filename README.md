@@ -31,10 +31,10 @@ that benefits CNN-based segmentation method.
 
 ## The problem we want to solve:
 
-！[Image text](https://github.com/qizipeng/NeRF-for-segmentation/blob/master/Figs/problem.png)
+![Image text](https://github.com/qizipeng/NeRF-for-segmentation/blob/master/Figs/problem.png)
 
 ## The method we proposed:
-！[Image text](https://github.com/qizipeng/NeRF-for-segmentation/blob/master/Figs/method.png)
+![Image text](https://github.com/qizipeng/NeRF-for-segmentation/blob/master/Figs/method.png)
 
 In our paper, a two-stage implicit neural field optimization
 method for remote sensing scene segmentation is proposed.
