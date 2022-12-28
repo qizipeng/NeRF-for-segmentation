@@ -1,5 +1,7 @@
 # NeRF-for-segmentation
 A novel NeRF++ based method for remote sensing scene segmetation!
+If you encounter any question, please feel free to contact us. You can create an issue 
+or just send email to me qizipeng@buaa.edu.com. Also welcome for any idea exchange and discussion.
 
 ## Abstract:
 
