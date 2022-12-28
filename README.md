@@ -77,6 +77,8 @@ You can find more details in our paper, feel free to concat me.
 
 ## Cite
 
+If you find this paper useful in your research, please consider citing:
+~~~
 @article{qi2022remote,
   title={Remote Sensing Image Segmentation based on Implicit 3D Scene Representation},
   author={Qi, Zipeng and Zou, Zhengxia and Chen, Hao and Shi, Zhenwei},
