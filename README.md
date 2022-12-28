@@ -1,7 +1,7 @@
 # NeRF-for-segmentation
 A novel NeRF++ based method for remote sensing scene segmetation!
 
-Abstract:
+## Abstract:
 
 Remote sensing image segmentation, as a challenging but fundamental task, has drawn increasing attention in
 the remote sensing field. Recent advances in deep learning have
@@ -29,6 +29,6 @@ view synthesis-based methods. We also show that the proposed
 method can be applied as a novel data augmentation approach
 that benefits CNN-based segmentation method.
 
-The problem we want to solve:
+## The problem we want to solve:
 
-！[image](./Figs/problem.png)
+！[image](https://github.com/qizipeng/NeRF-for-segmentation/blob/master/Figs/problem.png)
