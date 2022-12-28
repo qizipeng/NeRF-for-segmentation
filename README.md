@@ -58,7 +58,7 @@ the model to properly employ spatial information and pixel
 information to produce a more accurate segmentation output.
 
 ## The datsets we constructed:
-![Image text](https://github.com/qizipeng/NeRF-for-segmentation/blob/master/Figs/rgb.png) ![Image text](https://github.com/qizipeng/NeRF-for-segmentation/blob/master/Figs/seg.png)
+![Image text](https://github.com/qizipeng/NeRF-for-segmentation/blob/master/Figs/datasets.png) 
 
 To quantitatively evaluate our method, we build a multi-
 view aerial remote sensing dataset named Carla-MVS based on
