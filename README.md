@@ -63,4 +63,25 @@ information to produce a more accurate segmentation output.
 To quantitatively evaluate our method, we build a multi-
 view aerial remote sensing dataset named Carla-MVS based on
 the well-known Carla simulation platform. We also conduct qualitative experiments on real-world
-remote sensing images from Google Earth.
+remote sensing images from Google Earth. If you are interested in our work, your can download the datasets in follow url:
+
+## The Reaults:
+### Visual Results:
+![Image text](https://github.com/qizipeng/NeRF-for-segmentation/blob/master/Figs/results1.png) 
+![Image text](https://github.com/qizipeng/NeRF-for-segmentation/blob/master/Figs/results2.png) 
+### Quantitative Results:
+![Image text](https://github.com/qizipeng/NeRF-for-segmentation/blob/master/Figs/results3.png) 
+![Image text](https://github.com/qizipeng/NeRF-for-segmentation/blob/master/Figs/results4.png) 
+
+You can find more details in our paper, feel free to concat me.
+
+## Cite
+
+@article{qi2022remote,
+  title={Remote Sensing Image Segmentation based on Implicit 3D Scene Representation},
+  author={Qi, Zipeng and Zou, Zhengxia and Chen, Hao and Shi, Zhenwei},
+  journal={IEEE Geoscience and Remote Sensing Letters},
+  year={2022},
+  publisher={IEEE}
+}
+
