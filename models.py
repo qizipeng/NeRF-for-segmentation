@@ -5,15 +5,6 @@ from utils import depth2pts_outside, HUGE_NUMBER, TINY_NUMBER
 import matplotlib.pyplot as plot
 import numpy as np
 
-# device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
-#
-# model = Model()
-#
-# if torch.cuda.device_count()>1:
-#     model = nn.DataParallel(model, device_ids=[0,1,2])### need to change
-#
-# model.to(device)
-
 class Embedder(nn.Module):
     def __init__(self, input_dim, max_freq_log2, N_freqs,
                        log_sampling=True, include_input=True,
@@ -75,6 +66,9 @@ class MLPNet(nn.Module):
         :param input_ch_viewdirs: input channels for encodings of view directions
         :param skips: skip connection in network
         :param use_viewdirs: if True, will use the view directions as input
+        :param IsSegmantic: if True, will use the few view images to train segmentation-nerf
+        :param pointclass: if True, will return the features from final layer not the segmentaiton results, the features are combined with color-features
+        :param Finetune: if True, only finetune the parameters, not use the self.conv2_1 or self.conv2_2 for extracting features along a ray
         '''
         super().__init__()
 
@@ -107,10 +101,10 @@ class MLPNet(nn.Module):
             self.freeze(self.sigma_layers)  ### freeze
 
         ###ray 方向卷积
-        if self.IsSegmantic ==True:
-            self.conv1_1 = nn.Conv2d(in_channels=dim, out_channels=dim,kernel_size=[1,3],padding=[0,1])
-            # self.conv1_2 = nn.Conv2d(in_channels=dim, out_channels=dim, kernel_size=[1, 3], padding=[0, 1])
-            self.BN1 = nn.BatchNorm2d(dim)
+        # if self.IsSegmantic ==True:
+        #     self.conv1_1 = nn.Conv2d(in_channels=dim, out_channels=dim,kernel_size=[1,3],padding=[0,1])
+        #     # self.conv1_2 = nn.Conv2d(in_channels=dim, out_channels=dim, kernel_size=[1, 3], padding=[0, 1])
+        #     self.BN1 = nn.BatchNorm2d(dim)
         # rgb color
         rgb_layers = []
         base_remap_layers = [nn.Linear(dim, 256), ]
@@ -132,6 +126,11 @@ class MLPNet(nn.Module):
             rgb_layers.append(nn.Sigmoid())     # rgb values are normalized to [0, 1]
             self.rgb_layers = nn.Sequential(*rgb_layers)
         elif self.IsSegmantic == True:
+            ###ray 方向卷积
+            self.conv1_1 = nn.Conv2d(in_channels=dim, out_channels=dim,kernel_size=[1,3],padding=[0,1])
+            # self.conv1_2 = nn.Conv2d(in_channels=dim, out_channels=dim, kernel_size=[1, 3], padding=[0, 1])
+            self.BN1 = nn.BatchNorm2d(dim)
+
             self.conv2_1 = nn.Conv2d(in_channels=dim, out_channels=dim, kernel_size=[1, 3], padding=[0, 1])
             self.conv2_2 = nn.Conv2d(in_channels=dim, out_channels=dim, kernel_size=[1, 5], padding=[0, 2])
             # self.conv2_2 = nn.Conv2d(in_channels=dim, out_channels=dim, kernel_size=[1, 3], padding=[0, 1])
@@ -151,7 +150,7 @@ class MLPNet(nn.Module):
         for child in layer.children():
             for param in child.parameters():
                 param.requires_grad = False
-    def forward(self, input, m = 0):
+    def forward(self, input, m = 0, position = None):
         '''
         :param input: [..., input_ch+input_ch_viewdirs]
         :return [..., 4]
@@ -178,6 +177,26 @@ class MLPNet(nn.Module):
 
         base_remap = self.base_remap_layers(base)
         if self.IsSegmantic == False:
+            ### record the simga distribution
+            # if m == 1:
+            #     print("position shape", position.shape)
+            #     print("sigma shape", sigma.shape)
+            #     with open("./sigma1.txt", "r+") as fp:
+            #         for i in range(position.shape[1]):
+            #             posi_sigma_str = str(position[0][i][0].cpu().item()) +","+ str(position[0][i][1].cpu().item())+"," + str(position[0][i][2].cpu().item())+"," + str(sigma[0][i][0].cpu().item())
+            #             fp.writelines(posi_sigma_str+"\n")
+            #     fp.close()
+            #     with open("./sigma2.txt", "r+") as fp:
+            #         for i in range(position.shape[1]):
+            #             posi_sigma_str = str(position[5000][i][0].cpu().item()) +","+ str(position[5000][i][1].cpu().item())+"," + str(position[5000][i][2].cpu().item())+"," + str(sigma[5000][i][0].cpu().item())
+            #             fp.writelines(posi_sigma_str+"\n")
+            #     fp.close()
+            #     with open("./sigma3.txt", "r+") as fp:
+            #         for i in range(position.shape[1]):
+            #             posi_sigma_str = str(position[10000][i][0].cpu().item()) +","+ str(position[10000][i][1].cpu().item())+"," + str(position[10000][i][2].cpu().item())+"," + str(sigma[10000][i][0].cpu().item())
+            #             fp.writelines(posi_sigma_str+"\n")
+            #     fp.close()
+
             if self.use_viewdirs:
                 input_viewdirs = input[..., -self.input_ch_viewdirs:]
                 rgb = self.rgb_layers(torch.cat((base_remap, input_viewdirs), dim=-1))
@@ -187,7 +206,7 @@ class MLPNet(nn.Module):
                                ('sigma', sigma.squeeze(-1))])
             return ret
         if self.IsSegmantic == True:
-            if self.Finetune == True:
+            if self.Finetune == True:     ###fintune is just only update the parameters in rbg_layers using the segmentation images
                 rgb = self.rgb_layers_(base_remap)
                 rgb = self.new_Linear(rgb)
                 ret = OrderedDict([('rgb', rgb),
@@ -196,6 +215,14 @@ class MLPNet(nn.Module):
             rgb = self.rgb_layers_(base_remap)
             rgb = torch.unsqueeze(rgb, 0)
             rgb = rgb.permute(0, 3, 1, 2)
+            '''
+            we use different receptive field in different process.
+            self.conv2_1 is uesed for processing the 3 adjacent point features;
+            self.conv2_1 is uesed for processing the 5 adjacent point features;
+            self.conv2_1 and self.conv2_1 are construted by a 1*3 or 1*5 kernel.
+            self.conv1_1 is deleted in the final version.
+            '''
+
             if m == 0:
                 rgb = self.conv2_1(rgb)
             else:
@@ -210,7 +237,13 @@ class MLPNet(nn.Module):
             # rgb = self.conv4(rgb)
             # rgb = rgb.permute(0, 2, 3, 1)
             # rgb = torch.squeeze(rgb, 0)
-
+            '''
+            pointclass is a network for process the pixel-color(rgb) of correspoingding rays, 
+            in detail, we use the 3*3 convolution to extract the color-features
+            
+            So if not use the pointclass, we get the final segmentation results using the "new_Linear"
+            if we use the pointclass, we return the features from self.conv2_1 or self.conv2_2 and combine them with the features from pointclass netwrok.
+            '''
             if self.pointclass == False:
                 rgb = self.new_Linear(rgb)
 
@@ -239,7 +272,6 @@ class MLPNet(nn.Module):
             #         plot.cla()
             #         plot.plot(range(0, len(s_)), s_)
             #         plot.savefig("./sigma/sigma_{}_{}.png".format(m,i))
-
             ret = OrderedDict([('rgb', rgb),
                                 ('sigma', sigma.squeeze(-1))])
             return ret
@@ -247,6 +279,9 @@ class MLPNet(nn.Module):
 class Nerf(nn.Module):
     def __int__(self, args):
         pass
+'''
+The cnn_network calss is not used in the final version
+'''
 
 class cnn_network(nn.Module):
     def __init__(self):
@@ -311,10 +346,15 @@ class Nerfplus(nn.Module):
         self.Finetune = args.Finetune
         self.pointclass = args.pointclass
         if self.IsSegmantic == True:
+            #### The self.cnn_net is not used in the final version
             self.cnn_net = cnn_network()
             self.fg_fc_ = nn.Linear(128+args.color_channel,args.nclass)
             self.bg_fc_ = nn.Linear(128+args.color_channel, args.nclass)
             self.relu = nn.ReLU()
+            '''
+            The self.color_class* are activated if we set the "pointclass" is True
+            The self.color_class* are constructed with a few 1*1 convolution layer or a linear layer.
+            '''
             self.color_class1 = nn.Linear(3,16)
             self.color_class2_ = nn.Linear(16, args.color_channel) ###64
             self.color_class3_ = nn.Linear(args.color_channel, args.nclass)
@@ -332,7 +372,7 @@ class Nerfplus(nn.Module):
             color_class = self.color_class1(color)
             color_class = self.relu(color_class)
             color_class = self.color_class2_(color_class)
-            color_class_ = self.relu(color_class)
+            color_class_ = self.relu(color_class)  #####color_featurs
             color_class = self.color_class3_(color_class_)
         ray_d_norm = torch.norm(ray_d, dim=-1, keepdim=True)  # [..., 1]
         viewdirs = ray_d / ray_d_norm      # [..., 3]
@@ -349,7 +389,7 @@ class Nerfplus(nn.Module):
         if self.IsSegmantic:
             fg_raw = self.fg_net(input, m)
         else:
-            fg_raw = self.fg_net(input)
+            fg_raw = self.fg_net(input, m, position = fg_pts)
         # alpha blending
         fg_dists = fg_z_vals[..., 1:] - fg_z_vals[..., :-1]
         # account for view directions
@@ -361,6 +401,9 @@ class Nerfplus(nn.Module):
         fg_weights = fg_alpha * T     # [..., N_samples]
         fg_rgb_map = torch.sum(fg_weights.unsqueeze(-1) * fg_raw['rgb'], dim=-2)  # [..., 3]
         if self.IsSegmantic and self.pointclass:
+            '''
+            if pointclass, we combine the features from self.fg_net and the features from self.color_class
+            '''
             fg_rgb_map = self.fg_fc_(torch.cat((fg_rgb_map, color_class_), dim=-1))
 
         fg_depth_map = torch.sum(fg_weights * fg_z_vals, dim=-1)     # [...,]
@@ -401,8 +444,6 @@ class Nerfplus(nn.Module):
         bg_rgb_map = bg_lambda.unsqueeze(-1) * bg_rgb_map
         bg_depth_map = bg_lambda * bg_depth_map
         rgb_map = fg_rgb_map + bg_rgb_map
-
-
 
         ret = OrderedDict([('rgb', rgb_map),            # loss
                            ("color_class", color_class),

@@ -1,7 +1,7 @@
 ### INPUT
 datadir = ./data/carla
 scene = carla
-expname = carla14_rgb
+expname = carla8rgb
 basedir = ./logs
 config = None
 ckpt_path = None
@@ -15,7 +15,7 @@ pointclass = False
 Finetune = False
 
 ### TRAINING
-N_iters = 500001
+N_iters = 300000 #500001
 N_rand = 1024
 lrate = 0.0005 #0.0005 0.001
 

@@ -466,8 +466,10 @@ def caculatemetrics():
     #
     #     predict_masks.append(img2)
 
-    gtpath = "/home/qzp/nerf/nerf++/mynerf/data/test_result/dataset14/unet/gt"
-    predictpath = "/home/qzp/nerf/nerf++/mynerf/data/test_result/dataset14/unet/1"
+    gtpath = "/home/qzp/nerf/nerf++/mynerf/data/test_result/dataset9/my_nerf/gt"
+    predictpath = "/home/qzp/nerf/nerf++/mynerf/data/test_result/dataset9/my_nerf/result12"
+    # gtpath = "/home/qzp/nerf/nerf++/Pytorch-UNet-master/data/ratioreal2/gt"
+    # predictpath = "/home/qzp/nerf/nerf++/Pytorch-UNet-master/data/ratioreal2/30%/test/results2"
 
 
     # gtpath = "/home/qzp/nerf/nerf++/mynerf/data/test_result/dataset8/mynerf_chaowangluo/gt"

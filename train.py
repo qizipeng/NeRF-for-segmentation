@@ -175,13 +175,6 @@ def render_single_image(rank, world_size, models, ray_sampler, chunk_size):
         if torch.is_tensor(ray_batch[key]):
             ray_batch_split[key] = torch.split(ray_batch[key], chunk_size)
 
-    # print(ray_batch_split["color"][0].shape)
-    # color= Image.fromarray((ray_batch_split["color"][0].cpu().reshape([32,32,3]).numpy()*255).astype(np.uint8))
-    # color.save("color.png")
-    #
-    # color= Image.fromarray((ray_batch["color"][0:1024,:].cpu().reshape([32,32,3]).numpy()*255).astype(np.uint8))
-    # color.save("color_.png")
-
     # forward and backward
     ret_merge_chunk = [OrderedDict() for _ in range(models['cascade_level'])]
     for s in range(len(ray_batch_split['ray_d'])):
@@ -253,16 +246,6 @@ def render_single_image(rank, world_size, models, ray_sampler, chunk_size):
                         ret[key] = None
             # clean unused memory
             torch.cuda.empty_cache()
-
-        # result = ret_merge_chunk[-1]["rgb"][-1].reshape(32,32,-1)
-        # im = F.softmax(result, dim=-1)
-        # im = torch.argmax(im, dim=-1)
-        # im = im.numpy()
-        # im_seg = np.zeros((32, 32, 3))
-        # for i in range(32):
-        #     for j in range(32):
-        #         im_seg[i, j, :] = carla[im[i, j]][:]
-        # imageio.imwrite(os.path.join("vis/"+str(s)+".png"), im_seg.astype(np.uint8))
 
     # return ret_merge_chunk
     # merge results from different chunks

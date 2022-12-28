@@ -1,23 +1,23 @@
 ### INPUT
 datadir = ./data/carla
 scene = carla
-expname = carla14_rgb
+expname = carlareal1
 basedir = ./logs
 config = None
 ckpt_path = None
 no_reload = False
 testskip = 1
-IsSegmantic = False
+IsSegmantic = True
 updatesteps = 200000000000000000 #20000000000 ###不更新学习率
 nclass = 20
 color_channel = 64 ###64
-pointclass = False
+pointclass = True
 Finetune = False
 
 ### TRAINING
-N_iters = 500001
+N_iters = 20000 #500001
 N_rand = 1024
-lrate = 0.0005 #0.0005 0.001
+lrate = 0.001 #0.0005 0.001
 
 lrate_decay_factor = 0.1
 lrate_decay_steps = 50000000

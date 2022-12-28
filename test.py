@@ -6,6 +6,7 @@ import torch.distributed
 import torch.multiprocessing
 import numpy as np
 import os
+import cv2
 # from collections import OrderedDict
 # from ddp_model import NerfNet
 import time
@@ -261,21 +262,6 @@ def ddp_test_nerf(rank, args):
                     # # im = colorize_np(im, cmap_name='jet', append_cbar=True)
                     # im = to8b(im)
                     # imageio.imwrite(os.path.join(out_dir, 'bg_depth_' + fname), im)
-
-
-                    depthf = ret[-1]['fg_depth'].numpy()
-                    # im = colorize_np(im, cmap_name='jet', append_cbar=True)
-                    #depthf = to8b(depth1)
-                    # imageio.imwrite(os.path.join(out_dir, 'fg_depth_' + fname), im)
-
-                    depthb = ret[-1]['bg_depth'].numpy()
-                    # im = colorize_np(im, cmap_name='jet', append_cbar=True)
-                    #depthb = to8b(depth2)
-                    depth = depthf+depthb
-                    depth = to8b(depth)
-                    imageio.imwrite(os.path.join(out_dir, 'depth_' + fname), depth)
-
-
 
             torch.cuda.empty_cache()
 
