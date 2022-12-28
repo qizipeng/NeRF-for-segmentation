@@ -32,3 +32,5 @@ that benefits CNN-based segmentation method.
 ## The problem we want to solve:
 
 ！[image](https://github.com/qizipeng/NeRF-for-segmentation/blob/master/Figs/problem.png)
+
+## The method we proposed:
