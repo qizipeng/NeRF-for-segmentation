@@ -34,3 +34,25 @@ that benefits CNN-based segmentation method.
 ！[image](https://github.com/qizipeng/NeRF-for-segmentation/blob/master/Figs/problem.png)
 
 ## The method we proposed:
+！[image](https://github.com/qizipeng/NeRF-for-segmentation/blob/master/Figs/method.png)
+
+In our paper, a two-stage implicit neural field optimization
+method for remote sensing scene segmentation is proposed.
+An overall of our method is shown in the above Fig. 1) In the
+implicit representation stage, we follow the NeRF pipeline
+and feed the 3D coordinates and the view angle of the 3D
+locations to two multilayer perceptrons, i.e., a location-MLP
+and a view-MLP. In this way, the coordinate-dependent density
+attribute and view-dependent color attribute can be generated
+for each 3D location. 2) In the semantic segmentation stage,
+we effectively used the spatial information extracted from the
+above stage to generate segmentation results. Specifically, we
+freeze the weights of the Location-MLP so that the spatial
+information implied by the density attribute can be reused.
+A prediction head named Seg-MLP is then introduced to
+generate semantic features based on density features. Considering 
+the insufficiency of the annotation of limited views, we
+also propose a ray-convolution network, where pixel features
+are extracted and fused with semantic features. This enables
+the model to properly employ spatial information and pixel
+information to produce a more accurate segmentation output.
